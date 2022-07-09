@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"math"
 	"math/rand"
 	"time"
 )
@@ -69,4 +70,72 @@ func Mutation(pop [][]float64, rate float32) (newPop [][]float64) {
 
 	newPop = pop
 	return newPop
+}
+
+type individual struct {
+	Np int         // 被支配的数量
+	Sp [][]float64 //支配的个体集合
+}
+
+func FastNondominatedSort(pop [][]float64) (newPop [][]float64) {
+	fitness := Fitness(pop)
+
+	var F []*individual
+	for i, p := range pop {
+		// if p>q
+		ind := new(individual)
+		var sp [][]float64
+		np := 0
+		for j, q := range pop {
+			if i == j {
+				continue
+			}
+
+			var dominated, disdominated bool
+			for d := 0; d < len(fitness[0]); d++ {
+				if fitness[i][d] > fitness[j][d] {
+					disdominated = true
+					break
+				}
+				if fitness[i][d] < fitness[j][d] {
+					dominated = true
+				}
+			}
+			if !disdominated && dominated {
+				sp = append(sp, q)
+				np++
+			}
+		}
+		ind.Np, ind.Sp = np, sp
+		F = append(F, ind)
+	}
+
+}
+
+func CrowdingDistance(i int, fitness [][]float64) (newPop [][]float64) {
+	for d := 0; d < len(fitness[0]); d++ {
+		left, right, min, max := math.MaxFloat64, math.MaxFloat64, 0.0, 0.0
+		for x := 0; x < len(fitness); x++ {
+
+			if fitness[x][d] < min {
+				min = fitness[x][d]
+			}
+			if fitness[x][d] > max {
+				max = fitness[x][d]
+			}
+
+			if x == i {
+				continue
+			}
+
+			if fitness[i][d]-fitness[x][d] > 0 && fitness[i][d]-fitness[x][d] < left {
+				left = fitness[i][d] - fitness[x][d]
+			}
+			if fitness[x][d]-fitness[i][d] > 0 && fitness[x][d]-fitness[i][d] < right {
+				right = fitness[x][d] - fitness[i][d]
+			}
+
+		}
+	}
+
 }

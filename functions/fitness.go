@@ -4,7 +4,7 @@ import (
 	"github.com/HgAmiui9/GO-MOEA/problems"
 )
 
-func fitness(pop [][]float64) (f [][]float64) {
+func Fitness(pop [][]float64) (f [][]float64) {
 	s := len(pop)
 
 	for i := 0; i < s; i++ {
